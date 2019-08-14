@@ -51,7 +51,7 @@ import time
 import pandas as pd
 
 # data
-path_to_file = 'cnn_stories.csv'
+path_to_file = '../cnn_stories.csv'
 df = pd.read_csv(path_to_file)
 df.describe()
 
@@ -312,12 +312,16 @@ def train_step(inp, targ, enc_hidden):
     # Teacher forcing - feeding the target as the next input
     for t in range(1, targ.shape[1]):
       # passing enc_output to the decoder
-      predictions, dec_hidden, _ = decoder(dec_input, dec_hidden, enc_output)
+      try:
+        print("decoding",t)
+        predictions, dec_hidden, _ = decoder(dec_input, dec_hidden, enc_output)
 
-      loss += loss_function(targ[:, t], predictions)
-
-      # using teacher forcing
-      dec_input = tf.expand_dims(targ[:, t], 1)
+        loss += loss_function(targ[:, t], predictions)
+      except:
+        print("error")
+        # using teacher forcing
+      finally:  
+        dec_input = tf.expand_dims(targ[:, t], 1)
 
   batch_loss = (loss / int(targ.shape[1]))
 
