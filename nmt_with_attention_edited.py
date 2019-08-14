@@ -140,7 +140,6 @@ def convert(lang, tensor):
 
 print ("Input Language; index to word mapping")
 convert(inp_lang, input_tensor_train[0])
-print ()
 print ("Target Language; index to word mapping")
 convert(targ_lang, target_tensor_train[0])
 
@@ -310,12 +309,12 @@ def train_step(inp, targ, enc_hidden):
     dec_input = tf.expand_dims([targ_lang.word_index['<start>']] * BATCH_SIZE, 1)
 
     # Teacher forcing - feeding the target as the next input
+    predictions, dec_hidden, _ = decoder(dec_input, dec_hidden, enc_output)
+
     for t in range(1, targ.shape[1]):
       # passing enc_output to the decoder
       try:
-        print("decoding",t)
-        predictions, dec_hidden, _ = decoder(dec_input, dec_hidden, enc_output)
-
+        print("decoding",t, "loss", loss)
         loss += loss_function(targ[:, t], predictions)
       except:
         print("error")
