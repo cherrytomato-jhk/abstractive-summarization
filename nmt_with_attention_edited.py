@@ -121,7 +121,7 @@ def load_dataset(path, num_examples=None):
     return input_tensor, target_tensor, inp_lang_tokenizer, targ_lang_tokenizer
 
 # Try experimenting with the size of that dataset
-num_examples = 30000
+num_examples = 300
 input_tensor, target_tensor, inp_lang, targ_lang = load_dataset(path_to_file, num_examples)
 
 # Calculate max_length of the target tensors
@@ -280,7 +280,7 @@ def loss_function(real, pred):
 
 """## Checkpoints (Object-based saving)"""
 
-checkpoint_dir = './training_checkpoints'
+checkpoint_dir = './'
 checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
 checkpoint = tf.train.Checkpoint(optimizer=optimizer,
                                  encoder=encoder,
@@ -309,18 +309,15 @@ def train_step(inp, targ, enc_hidden):
     dec_input = tf.expand_dims([targ_lang.word_index['<start>']] * BATCH_SIZE, 1)
 
     # Teacher forcing - feeding the target as the next input
-    predictions, dec_hidden, _ = decoder(dec_input, dec_hidden, enc_output)
+
 
     for t in range(1, targ.shape[1]):
+      print("decoding",t)
       # passing enc_output to the decoder
-      try:
-        print("decoding",t, "loss", loss)
-        loss += loss_function(targ[:, t], predictions)
-      except:
-        print("error")
-        # using teacher forcing
-      finally:  
-        dec_input = tf.expand_dims(targ[:, t], 1)
+      
+      loss += loss_function(targ[:, t], predictions)
+      dec_input = tf.expand_dims(targ[:, t], 1)
+      predictions, dec_hidden, _ = decoder(dec_input, dec_hidden, enc_output)
 
   batch_loss = (loss / int(targ.shape[1]))
 
@@ -339,15 +336,15 @@ for epoch in range(EPOCHS):
 
   enc_hidden = encoder.initialize_hidden_state()
   total_loss = 0
-
   for (batch, (inp, targ)) in enumerate(dataset.take(steps_per_epoch)):
     batch_loss = train_step(inp, targ, enc_hidden)
     total_loss += batch_loss
-
+    print("batch", batch)
     if batch % 100 == 0:
-        print('Epoch {} Batch {} Loss {:.4f}'.format(epoch + 1,
-                                                     batch,
-                                                     batch_loss.numpy()))
+        # print('Epoch {} Batch {} Loss {:.4f}'.format(epoch + 1,
+        #                                              batch,
+        #                                              batch_loss)
+      print("batch", batch)
   # saving (checkpoint) the model every 2 epochs
   if (epoch + 1) % 2 == 0:
     checkpoint.save(file_prefix = checkpoint_prefix)
@@ -364,7 +361,7 @@ for epoch in range(EPOCHS):
 
 Note: The encoder output is calculated only once for one input.
 """
-
+@tf.function
 def evaluate(sentence):
     attention_plot = np.zeros((max_length_targ, max_length_inp))
 
@@ -391,9 +388,9 @@ def evaluate(sentence):
 
         # storing the attention weights to plot later on
         attention_weights = tf.reshape(attention_weights, (-1, ))
-        attention_plot[t] = attention_weights.numpy()
+        attention_plot[t] = attention_weights
 
-        predicted_id = tf.argmax(predictions[0]).numpy()
+        predicted_id = tf.argmax(predictions[0])
 
         result += targ_lang.index_word[predicted_id] + ' '
 
@@ -434,3 +431,12 @@ def translate(sentence):
 
 # restoring the latest checkpoint in checkpoint_dir
 checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
+
+
+target_tensor_train, target_tensor_val 
+
+
+def getScore(train, label):
+  for highlights in train:
+    predict=translate(highlights)
+    
