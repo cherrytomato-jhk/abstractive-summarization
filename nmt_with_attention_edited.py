@@ -314,10 +314,10 @@ def train_step(inp, targ, enc_hidden):
     for t in range(1, targ.shape[1]):
       print("decoding",t)
       # passing enc_output to the decoder
-      
+      predictions, dec_hidden, _ = decoder(dec_input, dec_hidden, enc_output)
       loss += loss_function(targ[:, t], predictions)
       dec_input = tf.expand_dims(targ[:, t], 1)
-      predictions, dec_hidden, _ = decoder(dec_input, dec_hidden, enc_output)
+
 
   batch_loss = (loss / int(targ.shape[1]))
 
