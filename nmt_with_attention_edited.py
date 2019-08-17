@@ -40,7 +40,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from sklearn.model_selection import train_test_split
-
+from rouge import Rouge
 import unicodedata
 import re
 import numpy as np
@@ -121,7 +121,7 @@ def load_dataset(path, num_examples=None):
     return input_tensor, target_tensor, inp_lang_tokenizer, targ_lang_tokenizer
 
 # Try experimenting with the size of that dataset
-num_examples = 300
+num_examples = 30000
 input_tensor, target_tensor, inp_lang, targ_lang = load_dataset(path_to_file, num_examples)
 
 # Calculate max_length of the target tensors
@@ -310,7 +310,6 @@ def train_step(inp, targ, enc_hidden):
 
     # Teacher forcing - feeding the target as the next input
 
-
     for t in range(1, targ.shape[1]):
       print("decoding",t)
       # passing enc_output to the decoder
@@ -436,7 +435,7 @@ checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
 target_tensor_train, target_tensor_val 
 
 
-def getScore(train, label):
-  for highlights in train:
-    predict=translate(highlights)
-    
+def getRougeScore(predict_list, label_list):
+  rouge = Rouge()
+  scores = rouge.get_scores(predict_list, label_list, avg=True)
+  return scores
