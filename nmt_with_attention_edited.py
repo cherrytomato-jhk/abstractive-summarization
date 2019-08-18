@@ -34,13 +34,11 @@ Original file is located at
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-#!pip install tensorflow-gpu==2.0.0-beta1
-import tensorflow as tf
 
+import tensorflow as tf
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from sklearn.model_selection import train_test_split
-from rouge import Rouge
 import unicodedata
 import re
 import numpy as np
@@ -146,7 +144,7 @@ convert(targ_lang, target_tensor_train[0])
 """### Create a tf.data dataset"""
 
 BUFFER_SIZE = len(input_tensor_train)
-BATCH_SIZE = 32#64
+BATCH_SIZE = 32
 steps_per_epoch = len(input_tensor_train)//BATCH_SIZE
 embedding_dim = 256
 units = 1024
@@ -309,7 +307,7 @@ def train_step(inp, targ, enc_hidden):
     dec_input = tf.expand_dims([targ_lang.word_index['<start>']] * BATCH_SIZE, 1)
 
     # Teacher forcing - feeding the target as the next input
-
+    print(targ.shape[1])
     for t in range(1, targ.shape[1]):
       print("decoding",t)
       # passing enc_output to the decoder
@@ -340,11 +338,9 @@ for epoch in range(EPOCHS):
     total_loss += batch_loss
     print("batch", batch)
     if batch % 100 == 0:
-        # print('Epoch {} Batch {} Loss {:.4f}'.format(epoch + 1,
-        #                                              batch,
-        #                                              batch_loss)
       print("batch", batch)
   # saving (checkpoint) the model every 2 epochs
+  
   if (epoch + 1) % 2 == 0:
     checkpoint.save(file_prefix = checkpoint_prefix)
 
@@ -435,7 +431,3 @@ checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
 target_tensor_train, target_tensor_val 
 
 
-def getRougeScore(predict_list, label_list):
-  rouge = Rouge()
-  scores = rouge.get_scores(predict_list, label_list, avg=True)
-  return scores
