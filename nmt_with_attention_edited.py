@@ -90,8 +90,7 @@ def create_dataset(path, num_examples):
     for i in range(min(len(stories), num_examples)):
       s = preprocess_sentence(str(stories[i]))
       h = preprocess_sentence(str(highlights[i]))
-      
-      word_pairs.append([s, h])
+      word_pairs.append([h, s])
     return zip(*word_pairs)
 
 def max_length(tensor):
